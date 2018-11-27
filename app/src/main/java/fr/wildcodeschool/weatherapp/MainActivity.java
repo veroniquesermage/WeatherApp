@@ -3,6 +3,7 @@ package fr.wildcodeschool.weatherapp;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -28,9 +29,10 @@ public class MainActivity extends AppCompatActivity {
 
         // Crée une file d'attente pour les requêtes vers l'API
         RequestQueue requestQueue = Volley.newRequestQueue(this);
+        final TextView text1 = (TextView) findViewById(R.id.text1);
 
 
-        String url = "https://api.openweathermap.org/data/2.5/weather?q=Toulouse&APPID=" + API_Key;
+        String url = "https://api.openweathermap.org/data/2.5/forecast?q=Toulouse&APPID=" + API_Key;
 
         // Création de la requête vers l'API, ajout des écouteurs pour les réponses et erreurs possibles
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
@@ -39,14 +41,18 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onResponse(JSONObject response) {
-                        // TODO : traiter la réponse
+                        int day=0;
                         try {
-                            JSONArray weather = response.getJSONArray("weather");
+                            JSONArray list = response.getJSONArray("list");
 
-                            for (int index=0; index<weather.length(); index++){
-                                JSONObject weatherInfos = (JSONObject) weather.get(index);
-                                String description = weatherInfos.getString("description");
-                                Toast.makeText(MainActivity.this, description, Toast.LENGTH_SHORT).show();
+                            for (int index=0; index<list.length(); index+=8){
+                                JSONObject listItem = (JSONObject) list.get(index);
+                                JSONArray weatherArray = (JSONArray) listItem.getJSONArray("weather");
+                                JSONObject weatherItem  = (JSONObject) weatherArray.get(0);
+                                String description = weatherItem.getString("description");
+                                day++;
+                                text1.append("Day " + day  + " : " +description + "\n");
+                                //Toast.makeText(MainActivity.this, description, Toast.LENGTH_SHORT).show();
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
